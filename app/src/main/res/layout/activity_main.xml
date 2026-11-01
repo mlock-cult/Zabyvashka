@@ -5,11 +5,11 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F5F7FA"
-    android:padding="24dp"
+    android:background="@drawable/bg_gradient"
+    android:padding="32dp"
     tools:context=".MainActivity">
 
-    <!-- Логотип (подняли наверх через bias 0.1) -->
+    <!-- Логотип -->
     <ImageView
         android:id="@+id/logo_image"
         android:layout_width="90dp"
@@ -40,20 +40,20 @@
         android:id="@+id/subtitle_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:text="Помнит за тебя"
+        android:layout_marginTop="0dp"
+        android:text="помнит за тебя"
         android:textColor="#594139"
         android:textSize="18sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/main_label" />
 
-    <!-- Заголовок поля Email -->
+    <!-- Заголовок поля Email (сюда пишется ошибка) -->
     <TextView
         android:id="@+id/email_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="40dp"
         android:text="Email"
         android:textColor="#594139"
         android:textSize="14sp"
@@ -61,17 +61,17 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/subtitle_label" />
 
-    <!-- Поле Email без рамки, с иконкой -->
+    <!-- Поле Email -->
     <EditText
         android:id="@+id/main_edit_email"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:layout_marginTop="4dp"
+        android:layout_marginTop="0dp"
         android:background="@null"
         android:drawableStart="@drawable/mail1"
         android:drawablePadding="8dp"
-        android:hint="example@mail.ru"
         android:drawableTint="#B6BECE"
+        android:hint="example@mail.ru"
         android:textColorHint="#B6BECE"
         android:textColor="#2B3A55"
         android:textSize="16sp"
@@ -81,12 +81,12 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/email_title" />
 
-    <!-- Заголовок поля Пароль -->
+    <!-- Заголовок поля Пароль (сюда пишется ошибка) -->
     <TextView
         android:id="@+id/password_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="20dp"
         android:text="Пароль"
         android:textColor="#594139"
         android:textSize="14sp"
@@ -99,7 +99,7 @@
         android:id="@+id/password_container"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:layout_marginTop="4dp"
+        android:layout_marginTop="0dp"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
@@ -130,7 +130,7 @@
             android:paddingStart="0dp"
             android:paddingEnd="0dp" />
 
-        <!-- Глазик (иконка) -->
+        <!-- Глазик -->
         <ImageView
             android:id="@+id/eye_icon"
             android:layout_width="24dp"
@@ -144,16 +144,17 @@
     </LinearLayout>
 
     <!-- Кнопка Войти -->
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/main_button"
         android:layout_width="match_parent"
         android:layout_height="56dp"
         android:layout_marginTop="24dp"
-        android:backgroundTint="#FF6B35"
         android:text="Войти"
         android:textColor="#FFFFFF"
         android:textSize="18sp"
+        app:backgroundTint="#FF6B35"
         app:cornerRadius="12dp"
+        app:rippleColor="#ff936b"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/password_container" />
@@ -185,6 +186,37 @@
             android:textStyle="bold"
             android:clickable="true"
             android:focusable="true" />
+    </LinearLayout>
+
+    <!-- Подвал (Footer) -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="© 2026 Забывашка · "
+            android:textColor="#B6BECE"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/footer_github_link"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="GitHub"
+            android:textColor="#FF6B35"
+            android:textSize="12sp"
+            android:clickable="true"
+            android:focusable="true"
+            android:padding="4dp"
+            android:background="?attr/selectableItemBackground" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
