@@ -56,8 +56,8 @@ class MainActivity : AppCompatActivity() {
             val password = passwordInput.text.toString().trim()
 
             val defaultTextColor = android.graphics.Color.parseColor("#594139")
-            val defaultDimColor = android.graphics.Color.parseColor("#80B6BECE")
-            val defaultIconColor = android.graphics.Color.parseColor("#806B7C93")
+            val defaultDimColor = android.graphics.Color.parseColor("#99B6BECE")
+            val defaultIconColor = android.graphics.Color.parseColor("#996B7C93")
 
             val errorTitleColor = android.graphics.Color.parseColor("#D32F2F")
             val errorDimColor = android.graphics.Color.parseColor("#80E57373")
