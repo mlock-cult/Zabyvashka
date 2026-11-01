@@ -8,7 +8,7 @@
     android:background="#F5F7FA"
     android:padding="24dp"
     tools:context=".MainActivity">
-
+    <!--colors: #B6BECE, FF6B35-->
     <!-- Логотип / Название -->
     <TextView
         android:id="@+id/main_label"
@@ -37,60 +37,141 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/main_label" />
 
-    <!-- Поле Email -->
+    <!-- Заголовок поля Email -->
+    <TextView
+        android:id="@+id/email_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="48dp"
+        android:text="Email"
+        android:textColor="#2B3A55"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/subtitle_label" />
+
+    <!-- Поле Email без рамки, с иконкой -->
     <EditText
         android:id="@+id/main_edit_email"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:layout_marginTop="48dp"
-        android:background="@android:drawable/edit_text"
-        android:hint="Email"
+        android:layout_marginTop="4dp"
+        android:background="@null"
+        android:drawableStart="@android:drawable/ic_dialog_email"
+        android:drawablePadding="8dp"
+        android:hint="example@mail.ru"
+        android:textColorHint="#B6BECE"
+        android:textColor="#2B3A55"
+        android:textSize="16sp"
         android:inputType="textEmailAddress"
-        android:paddingStart="12dp"
-        android:paddingEnd="12dp"
+        android:maxLines="1"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/subtitle_label" />
+        app:layout_constraintTop_toBottomOf="@+id/email_title" />
 
-    <!-- Поле Пароль -->
-    <EditText
-        android:id="@+id/main_edit_password"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_marginTop="16dp"
-        android:background="@android:drawable/edit_text"
-        android:hint="Пароль"
-        android:inputType="textPassword"
-        android:paddingStart="12dp"
-        android:paddingEnd="12dp"
-        app:layout_constraintEnd_toEndOf="parent"
+    <!-- Заголовок поля Пароль -->
+    <TextView
+        android:id="@+id/password_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="Пароль"
+        android:textColor="#2B3A55"
+        android:textSize="14sp"
+        android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/main_edit_email" />
 
+    <!-- Контейнер для Поля Пароль и Глазика -->
+    <LinearLayout
+        android:id="@+id/password_container"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginTop="4dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/password_title">
+
+        <!-- Иконка замка -->
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@android:drawable/ic_lock_lock"
+            app:tint="#B6BECE" />
+
+        <!-- Поле ввода пароля -->
+        <EditText
+            android:id="@+id/main_edit_password"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_marginStart="8dp"
+            android:background="@null"
+            android:hint="••••••••"
+            android:textColorHint="#B6BECE"
+            android:textColor="#2B3A55"
+            android:textSize="16sp"
+            android:inputType="textPassword"
+            android:maxLines="1"
+            android:paddingStart="0dp"
+            android:paddingEnd="0dp" />
+
+        <!-- Глазик (иконка) -->
+        <ImageView
+            android:id="@+id/eye_icon"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@android:drawable/ic_menu_view"
+            app:tint="#6B7C93"
+            android:clickable="true"
+            android:focusable="true"
+            android:padding="2dp" />
+
+    </LinearLayout>
     <!-- Кнопка Войти -->
     <Button
         android:id="@+id/main_button"
         android:layout_width="match_parent"
         android:layout_height="56dp"
-        android:layout_marginTop="32dp"
-        android:backgroundTint="#F59E0B"
+        android:layout_marginTop="40dp"
+        android:backgroundTint="#FF6B35"
         android:text="Войти"
         android:textColor="#FFFFFF"
         android:textSize="18sp"
+        app:cornerRadius="12dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/main_edit_password" />
+        app:layout_constraintTop_toBottomOf="@+id/password_container" />
 
-    <!-- Текст "Нет аккаунта?" -->
-    <TextView
-        android:id="@+id/register_link"
+    <!-- Текст "Нет аккаунта? Зарегистрироваться" -->
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
-        android:text="Нет аккаунта? Зарегистрироваться"
-        android:textColor="#2B3A55"
+        android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/main_button" />
+        app:layout_constraintTop_toBottomOf="@+id/main_button">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Нет аккаунта? "
+            android:textColor="#6B7C93"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/register_link"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Зарегистрироваться"
+            android:textColor="#FF6B35"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:clickable="true"
+            android:focusable="true" />
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
