@@ -114,7 +114,7 @@ class MainActivity : AppCompatActivity() {
 
         // 4. Ссылка "Зарегистрироваться"
         registerLink.setOnClickListener {
-            Toast.makeText(this, "Переход на экран регистрации", Toast.LENGTH_SHORT).show()
+            startActivity(Intent(this, RegisterActivity::class.java))
         }
 
         // 5. Ссылка на GitHub
