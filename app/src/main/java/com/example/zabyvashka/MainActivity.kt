@@ -10,6 +10,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.net.toUri
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 
@@ -28,6 +29,13 @@ class MainActivity : AppCompatActivity() {
         // Находим заголовки один раз (выносим наверх для удобства)
         val emailTitle = findViewById<TextView>(R.id.email_title)
         val passwordTitle = findViewById<TextView>(R.id.password_title)
+
+        // Получаем email из регистрации
+        val registeredEmail = intent.getStringExtra("USER_EMAIL")
+        if (!registeredEmail.isNullOrEmpty()) {
+            emailInput.setText(registeredEmail)
+            passwordInput.requestFocus()
+        }
 
         // 2. Логика для "глазика"
         var isPasswordVisible = false
@@ -108,7 +116,25 @@ class MainActivity : AppCompatActivity() {
             }
 
             if (!hasError) {
-                Toast.makeText(this, "Вы вошли как: $email", Toast.LENGTH_LONG).show()
+                val db = AppDatabase.getDatabase(this)
+                val userDao = db.userDao()
+
+                kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.Main).launch {
+                    val user = userDao.getUserByEmail(email)
+
+                    if (user != null && PasswordHasher.verify(password, user.password)) {
+                        // Пароль верный
+                        Toast.makeText(this@MainActivity, "Вы вошли как: ${user.name}", Toast.LENGTH_LONG).show()
+                        // TODO: переход на главный экран (список объектов)
+                    } else {
+                        // Неверный email или пароль
+                        passwordTitle.text = "Неверный email или пароль"
+                        passwordTitle.setTextColor(errorTitleColor)
+                        passwordInput.setHintTextColor(errorDimColor)
+                        eyeIcon.setColorFilter(errorDimColor)
+                        lockIcon.setColorFilter(errorDimColor, android.graphics.PorterDuff.Mode.SRC_IN)
+                    }
+                }
             }
         }
 

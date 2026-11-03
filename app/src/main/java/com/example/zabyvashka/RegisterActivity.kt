@@ -11,6 +11,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import kotlinx.coroutines.launch
 
 class RegisterActivity : AppCompatActivity() {
 
@@ -46,33 +47,30 @@ class RegisterActivity : AppCompatActivity() {
         val errorTitleColor = Color.parseColor("#D32F2F")
         val errorDimColor = Color.parseColor("#80E57373")
 
-        // Глазик для первого пароля
+        // --- ГЛАЗИКИ (РАБОТАЮТ СИНХРОННО) ---
         var isPasswordVisible = false
-        eyeIcon.setOnClickListener {
+
+        fun togglePasswords() {
             isPasswordVisible = !isPasswordVisible
             if (isPasswordVisible) {
                 passwordInput.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
-                eyeIcon.setImageResource(R.drawable.eye2)
-            } else {
-                passwordInput.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
-                eyeIcon.setImageResource(R.drawable.eye1)
-            }
-            passwordInput.setSelection(passwordInput.text.length)
-        }
-
-        // Глазик для второго пароля
-        var isPassword2Visible = false
-        eyeIcon2.setOnClickListener {
-            isPassword2Visible = !isPassword2Visible
-            if (isPassword2Visible) {
                 password2Input.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+                eyeIcon.setImageResource(R.drawable.eye2)
                 eyeIcon2.setImageResource(R.drawable.eye2)
             } else {
+                passwordInput.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
                 password2Input.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+                eyeIcon.setImageResource(R.drawable.eye1)
                 eyeIcon2.setImageResource(R.drawable.eye1)
             }
+            // Курсоры в конец
+            passwordInput.setSelection(passwordInput.text.length)
             password2Input.setSelection(password2Input.text.length)
         }
+        // Клик по первому глазику
+        eyeIcon.setOnClickListener { togglePasswords() }
+        // Клик по второму глазику
+        eyeIcon2.setOnClickListener { togglePasswords() }
 
         // Кнопка «Зарегистрироваться»
         registerButton.setOnClickListener {
@@ -139,13 +137,30 @@ class RegisterActivity : AppCompatActivity() {
             }
 
             if (!hasError) {
-                Toast.makeText(this, "Аккаунт создан: $email", Toast.LENGTH_LONG).show()
-                // TODO: здесь сохранить пользователя (Room / SharedPreferences / Firebase)
-                // После успешной регистрации — вернуться на логин:
-                startActivity(Intent(this, MainActivity::class.java))
-                finish()
+                val name = nameInput.text.toString().trim()
+                val db = AppDatabase.getDatabase(this)
+                val userDao = db.userDao()
+
+                kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.Main).launch {
+                    val existingUser = userDao.getUserByEmail(email)
+
+                    if (existingUser != null) {
+                        Toast.makeText(this@RegisterActivity, "Этот email уже зарегистрирован", Toast.LENGTH_LONG).show()
+                    } else {
+                        // ХЕШИРУЕМ ПАРОЛЬ ПЕРЕД СОХРАНЕНИЕМ
+                        val hashedPassword = PasswordHasher.hash(password)
+
+                        val newUser = User(name = name, email = email, password = hashedPassword)
+                        userDao.insertUser(newUser)
+
+                        val intent = Intent(this@RegisterActivity, MainActivity::class.java)
+                        intent.putExtra("USER_EMAIL", email)
+                        startActivity(intent)
+                        finish()
+                    }
+                }
             }
-        }
+            }
 
         // Ссылка «Войти» — назад на логин
         loginLink.setOnClickListener {
