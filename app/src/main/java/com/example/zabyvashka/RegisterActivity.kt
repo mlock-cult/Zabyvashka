@@ -11,6 +11,8 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class RegisterActivity : AppCompatActivity() {
@@ -19,33 +21,39 @@ class RegisterActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_register)
 
+        // Находим элементы ввода
+        val nameInput = findViewById<EditText>(R.id.reg_edit_name)
         val emailInput = findViewById<EditText>(R.id.reg_edit_email)
         val passwordInput = findViewById<EditText>(R.id.reg_edit_password)
         val password2Input = findViewById<EditText>(R.id.reg_edit_password2)
         val registerButton = findViewById<Button>(R.id.reg_button)
         val loginLink = findViewById<TextView>(R.id.login_link)
 
+        // Заголовки
+        val nameTitle = findViewById<TextView>(R.id.reg_name_title)
         val emailTitle = findViewById<TextView>(R.id.reg_email_title)
         val passwordTitle = findViewById<TextView>(R.id.reg_password_title)
         val password2Title = findViewById<TextView>(R.id.reg_password2_title)
 
+        // Глазики
         val eyeIcon = findViewById<ImageView>(R.id.reg_eye_icon)
         val eyeIcon2 = findViewById<ImageView>(R.id.reg_eye_icon2)
 
+        // Контейнеры (капсулы) и иконки внутри них
+        val nameContainer = findViewById<LinearLayout>(R.id.reg_name_container)
+        val emailContainer = findViewById<LinearLayout>(R.id.reg_email_container)
         val passwordContainer = findViewById<LinearLayout>(R.id.reg_password_container)
-        val lockIcon = passwordContainer.getChildAt(0) as ImageView
         val password2Container = findViewById<LinearLayout>(R.id.reg_password2_container)
+
+        val nameIcon = nameContainer.getChildAt(0) as ImageView
+        val emailIcon = emailContainer.getChildAt(0) as ImageView
+        val lockIcon = passwordContainer.getChildAt(0) as ImageView
         val lockIcon2 = password2Container.getChildAt(0) as ImageView
 
-        val nameInput = findViewById<EditText>(R.id.reg_edit_name)
-        val nameTitle = findViewById<TextView>(R.id.reg_name_title)
-
-        // Цвета
-        val defaultTextColor = Color.parseColor("#594139")
-        val defaultDimColor = Color.parseColor("#99B6BECE")
-        val defaultIconColor = Color.parseColor("#996B7C93")
-        val errorTitleColor = Color.parseColor("#D32F2F")
-        val errorDimColor = Color.parseColor("#80E57373")
+        // Цвета для темной темы
+        val defaultTextColor = Color.parseColor("#FFFFFF")
+        val defaultDimColor = Color.parseColor("#80FFFFFF")
+        val errorTitleColor = Color.parseColor("#FF5252")
 
         // --- ГЛАЗИКИ (РАБОТАЮТ СИНХРОННО) ---
         var isPasswordVisible = false
@@ -63,95 +71,112 @@ class RegisterActivity : AppCompatActivity() {
                 eyeIcon.setImageResource(R.drawable.eye1)
                 eyeIcon2.setImageResource(R.drawable.eye1)
             }
-            // Курсоры в конец
             passwordInput.setSelection(passwordInput.text.length)
             password2Input.setSelection(password2Input.text.length)
         }
-        // Клик по первому глазику
+
         eyeIcon.setOnClickListener { togglePasswords() }
-        // Клик по второму глазику
         eyeIcon2.setOnClickListener { togglePasswords() }
 
-        // Кнопка «Зарегистрироваться»
+        // --- КНОПКА «ЗАРЕГИСТРИРОВАТЬСЯ» ---
         registerButton.setOnClickListener {
+            val name = nameInput.text.toString().trim()
             val email = emailInput.text.toString().trim()
             val password = passwordInput.text.toString().trim()
             val password2 = password2Input.text.toString().trim()
 
-            // СБРОС
+            // СБРОС ОШИБОК
+            nameTitle.text = "Имя"; nameTitle.setTextColor(defaultTextColor)
             emailTitle.text = "Email"; emailTitle.setTextColor(defaultTextColor)
             passwordTitle.text = "Пароль"; passwordTitle.setTextColor(defaultTextColor)
             password2Title.text = "Повторите пароль"; password2Title.setTextColor(defaultTextColor)
 
+            // Сброс фонов (возвращаем стекло)
+            nameContainer.setBackgroundResource(R.drawable.bg_input_field)
+            emailContainer.setBackgroundResource(R.drawable.bg_input_field)
+            passwordContainer.setBackgroundResource(R.drawable.bg_input_field)
+            password2Container.setBackgroundResource(R.drawable.bg_input_field)
+
+            // Сброс иконок и подсказок
+            nameInput.setHintTextColor(defaultDimColor)
             emailInput.setHintTextColor(defaultDimColor)
             passwordInput.setHintTextColor(defaultDimColor)
             password2Input.setHintTextColor(defaultDimColor)
 
-            nameTitle.text = "Имя"
-            nameTitle.setTextColor(defaultTextColor)
-            nameInput.setHintTextColor(defaultDimColor)
-
-            eyeIcon.setColorFilter(defaultIconColor)
-            eyeIcon2.setColorFilter(defaultIconColor)
+            nameIcon.setColorFilter(defaultDimColor)
+            emailIcon.setColorFilter(defaultDimColor)
+            eyeIcon.setColorFilter(defaultDimColor)
+            eyeIcon2.setColorFilter(defaultDimColor)
             lockIcon.setColorFilter(defaultDimColor, android.graphics.PorterDuff.Mode.SRC_IN)
             lockIcon2.setColorFilter(defaultDimColor, android.graphics.PorterDuff.Mode.SRC_IN)
-            emailInput.compoundDrawables[0]?.setColorFilter(defaultDimColor, android.graphics.PorterDuff.Mode.SRC_IN)
 
             var hasError = false
 
-            // Имя
-            if (nameInput.text.toString().trim().isEmpty()) {
+            // ОШИБКА ИМЕНИ
+            if (name.isEmpty()) {
                 nameTitle.text = "Введите имя"
                 nameTitle.setTextColor(errorTitleColor)
-                nameInput.setHintTextColor(errorDimColor)
+                nameContainer.setBackgroundResource(R.drawable.bg_input_field_error)
+                nameInput.setHintTextColor(errorTitleColor)
+                nameIcon.setColorFilter(errorTitleColor)
                 hasError = true
             }
 
-            // Email
+            // ОШИБКА EMAIL
             if (email.isEmpty() || !email.contains("@") || !email.contains(".")) {
                 emailTitle.text = "Введите корректный email"
                 emailTitle.setTextColor(errorTitleColor)
-                emailInput.setHintTextColor(errorDimColor)
-                emailInput.compoundDrawables[0]?.setColorFilter(errorDimColor, android.graphics.PorterDuff.Mode.SRC_IN)
+                emailContainer.setBackgroundResource(R.drawable.bg_input_field_error)
+                emailInput.setHintTextColor(errorTitleColor)
+                emailIcon.setColorFilter(errorTitleColor)
                 hasError = true
             }
 
-            // Пароль
+            // ОШИБКА ПАРОЛЯ
             if (password.isEmpty() || password.length < 6) {
                 passwordTitle.text = "Пароль от 6 символов"
                 passwordTitle.setTextColor(errorTitleColor)
-                passwordInput.setHintTextColor(errorDimColor)
-                eyeIcon.setColorFilter(errorDimColor)
-                lockIcon.setColorFilter(errorDimColor, android.graphics.PorterDuff.Mode.SRC_IN)
+                passwordContainer.setBackgroundResource(R.drawable.bg_input_field_error)
+                passwordInput.setHintTextColor(errorTitleColor)
+                eyeIcon.setColorFilter(errorTitleColor)
+                lockIcon.setColorFilter(errorTitleColor, android.graphics.PorterDuff.Mode.SRC_IN)
                 hasError = true
             }
 
-            // Повтор пароля
+            // ОШИБКА ПОВТОРА ПАРОЛЯ
             if (password2.isEmpty() || password2 != password) {
                 password2Title.text = "Пароли не совпадают"
                 password2Title.setTextColor(errorTitleColor)
-                password2Input.setHintTextColor(errorDimColor)
-                eyeIcon2.setColorFilter(errorDimColor)
-                lockIcon2.setColorFilter(errorDimColor, android.graphics.PorterDuff.Mode.SRC_IN)
+                password2Container.setBackgroundResource(R.drawable.bg_input_field_error)
+                password2Input.setHintTextColor(errorTitleColor)
+                eyeIcon2.setColorFilter(errorTitleColor)
+                lockIcon2.setColorFilter(errorTitleColor, android.graphics.PorterDuff.Mode.SRC_IN)
                 hasError = true
             }
 
+            // РАБОТА С БАЗОЙ
             if (!hasError) {
-                val name = nameInput.text.toString().trim()
                 val db = AppDatabase.getDatabase(this)
                 val userDao = db.userDao()
 
-                kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.Main).launch {
+                CoroutineScope(Dispatchers.Main).launch {
                     val existingUser = userDao.getUserByEmail(email)
 
                     if (existingUser != null) {
                         Toast.makeText(this@RegisterActivity, "Этот email уже зарегистрирован", Toast.LENGTH_LONG).show()
+                        // Красим Email в красный, так как он занят
+                        emailTitle.text = "Email уже занят"
+                        emailTitle.setTextColor(errorTitleColor)
+                        emailContainer.setBackgroundResource(R.drawable.bg_input_field_error)
+                        emailInput.setHintTextColor(errorTitleColor)
+                        emailIcon.setColorFilter(errorTitleColor)
                     } else {
-                        // ХЕШИРУЕМ ПАРОЛЬ ПЕРЕД СОХРАНЕНИЕМ
+                        // УСПЕХ
                         val hashedPassword = PasswordHasher.hash(password)
-
                         val newUser = User(name = name, email = email, password = hashedPassword)
                         userDao.insertUser(newUser)
+
+                        Toast.makeText(this@RegisterActivity, "Аккаунт создан: $name", Toast.LENGTH_LONG).show()
 
                         val intent = Intent(this@RegisterActivity, MainActivity::class.java)
                         intent.putExtra("USER_EMAIL", email)
@@ -160,11 +185,11 @@ class RegisterActivity : AppCompatActivity() {
                     }
                 }
             }
-            }
+        }
 
         // Ссылка «Войти» — назад на логин
         loginLink.setOnClickListener {
-            finish() // MainActivity уже в стеке
+            finish()
         }
     }
 }

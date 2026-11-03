@@ -1,15 +1,19 @@
 package com.example.zabyvashka
 
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.text.InputType
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.net.toUri
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
@@ -26,11 +30,17 @@ class MainActivity : AppCompatActivity() {
         val eyeIcon = findViewById<ImageView>(R.id.eye_icon)
         val footerGithubLink = findViewById<TextView>(R.id.footer_github_link)
 
-        // Находим заголовки один раз (выносим наверх для удобства)
         val emailTitle = findViewById<TextView>(R.id.email_title)
         val passwordTitle = findViewById<TextView>(R.id.password_title)
 
-        // Получаем email из регистрации
+        // Контейнеры (капсулы) и иконки внутри них
+        val emailContainer = findViewById<LinearLayout>(R.id.email_container)
+        val passContainer = findViewById<LinearLayout>(R.id.password_container)
+
+        val emailIcon = emailContainer.getChildAt(0) as ImageView
+        val lockIcon = passContainer.getChildAt(0) as ImageView
+
+        // Получаем email из регистрации (автозаполнение)
         val registeredEmail = intent.getStringExtra("USER_EMAIL")
         if (!registeredEmail.isNullOrEmpty()) {
             emailInput.setText(registeredEmail)
@@ -43,18 +53,12 @@ class MainActivity : AppCompatActivity() {
             isPasswordVisible = !isPasswordVisible
 
             if (isPasswordVisible) {
-                // Показываем пароль
                 passwordInput.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
-                // Меняем иконку на перечеркнутый глаз (eye2)
                 eyeIcon.setImageResource(R.drawable.eye2)
             } else {
-                // Скрываем пароль
                 passwordInput.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
-                // Возвращаем обычный глаз (eye1)
                 eyeIcon.setImageResource(R.drawable.eye1)
             }
-
-            // Ставим курсор в конец, чтобы он не прыгал в начало
             passwordInput.setSelection(passwordInput.text.length)
         }
 
@@ -63,31 +67,26 @@ class MainActivity : AppCompatActivity() {
             val email = emailInput.text.toString().trim()
             val password = passwordInput.text.toString().trim()
 
-            val defaultTextColor = android.graphics.Color.parseColor("#594139")
-            val defaultDimColor = android.graphics.Color.parseColor("#99B6BECE")
-            val defaultIconColor = android.graphics.Color.parseColor("#996B7C93")
+            // Цвета для темной темы
+            val defaultTextColor = Color.parseColor("#FFFFFF")
+            val defaultDimColor = Color.parseColor("#80FFFFFF")
+            val errorTitleColor = Color.parseColor("#FF5252")
 
-            val errorTitleColor = android.graphics.Color.parseColor("#D32F2F")
-            val errorDimColor = android.graphics.Color.parseColor("#80E57373")
-
-            // Находим контейнер пароля и иконку замка
-            val passwordContainer = findViewById<android.widget.LinearLayout>(R.id.password_container)
-            val lockIcon = passwordContainer.getChildAt(0) as ImageView
-
-            // СБРОС
+            // СБРОС ОШИБОК
             emailTitle.text = "Email"
             emailTitle.setTextColor(defaultTextColor)
-
             passwordTitle.text = "Пароль"
             passwordTitle.setTextColor(defaultTextColor)
+
+            emailContainer.setBackgroundResource(R.drawable.bg_input_field)
+            passContainer.setBackgroundResource(R.drawable.bg_input_field)
 
             emailInput.setHintTextColor(defaultDimColor)
             passwordInput.setHintTextColor(defaultDimColor)
 
-            eyeIcon.setColorFilter(defaultIconColor)
-            // Возвращаем замку тусклый цвет через SRC_IN
+            emailIcon.setColorFilter(defaultDimColor)
+            eyeIcon.setColorFilter(defaultDimColor)
             lockIcon.setColorFilter(defaultDimColor, android.graphics.PorterDuff.Mode.SRC_IN)
-            emailInput.compoundDrawables[0]?.setColorFilter(defaultDimColor, android.graphics.PorterDuff.Mode.SRC_IN)
 
             var hasError = false
 
@@ -96,9 +95,9 @@ class MainActivity : AppCompatActivity() {
                 emailTitle.text = "Введите корректный email"
                 emailTitle.setTextColor(errorTitleColor)
 
-                emailInput.setHintTextColor(errorDimColor)
-                emailInput.compoundDrawables[0]?.setColorFilter(errorDimColor, android.graphics.PorterDuff.Mode.SRC_IN)
-
+                emailContainer.setBackgroundResource(R.drawable.bg_input_field_error)
+                emailInput.setHintTextColor(errorTitleColor)
+                emailIcon.setColorFilter(errorTitleColor)
                 hasError = true
             }
 
@@ -107,32 +106,45 @@ class MainActivity : AppCompatActivity() {
                 passwordTitle.text = "Пароль от 6 символов"
                 passwordTitle.setTextColor(errorTitleColor)
 
-                passwordInput.setHintTextColor(errorDimColor)
-                eyeIcon.setColorFilter(errorDimColor)
-                // Красим замок в красный через SRC_IN
-                lockIcon.setColorFilter(errorDimColor, android.graphics.PorterDuff.Mode.SRC_IN)
-
+                passContainer.setBackgroundResource(R.drawable.bg_input_field_error)
+                passwordInput.setHintTextColor(errorTitleColor)
+                eyeIcon.setColorFilter(errorTitleColor)
+                lockIcon.setColorFilter(errorTitleColor, android.graphics.PorterDuff.Mode.SRC_IN)
                 hasError = true
             }
 
+            // ЕСЛИ ОШИБОК НЕТ — ПРОВЕРЯЕМ В БАЗЕ
             if (!hasError) {
                 val db = AppDatabase.getDatabase(this)
                 val userDao = db.userDao()
 
-                kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.Main).launch {
+                CoroutineScope(Dispatchers.Main).launch {
                     val user = userDao.getUserByEmail(email)
 
                     if (user != null && PasswordHasher.verify(password, user.password)) {
-                        // Пароль верный
+                        // Успешный вход
                         Toast.makeText(this@MainActivity, "Вы вошли как: ${user.name}", Toast.LENGTH_LONG).show()
-                        // TODO: переход на главный экран (список объектов)
+                        // Переход на главный экран
+                        val intent = Intent(this@MainActivity, HomeActivity::class.java)
+                        intent.putExtra("USER_NAME", user.name)
+                        startActivity(intent)
+                        finish()
                     } else {
-                        // Неверный email или пароль
+                        // ОШИБКА БАЗЫ ДАННЫХ
+                        emailTitle.text = "Неверный email или пароль"
+                        emailTitle.setTextColor(errorTitleColor)
                         passwordTitle.text = "Неверный email или пароль"
                         passwordTitle.setTextColor(errorTitleColor)
-                        passwordInput.setHintTextColor(errorDimColor)
-                        eyeIcon.setColorFilter(errorDimColor)
-                        lockIcon.setColorFilter(errorDimColor, android.graphics.PorterDuff.Mode.SRC_IN)
+
+                        emailContainer.setBackgroundResource(R.drawable.bg_input_field_error)
+                        passContainer.setBackgroundResource(R.drawable.bg_input_field_error)
+
+                        emailInput.setHintTextColor(errorTitleColor)
+                        passwordInput.setHintTextColor(errorTitleColor)
+
+                        eyeIcon.setColorFilter(errorTitleColor)
+                        lockIcon.setColorFilter(errorTitleColor, android.graphics.PorterDuff.Mode.SRC_IN)
+                        emailIcon.setColorFilter(errorTitleColor)
                     }
                 }
             }

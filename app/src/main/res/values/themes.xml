@@ -1,9 +1,10 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
+    <!-- Базовая тема приложения -->
     <style name="Base.Theme.Zabyvashka" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <!-- Здесь могут быть твои цвета, если ты их задавал (например, colorPrimary) -->
+        <!-- Если тут было пусто, оставь пусто -->
     </style>
 
+    <!-- Основная тема, которая применяется в манифесте -->
     <style name="Theme.Zabyvashka" parent="Base.Theme.Zabyvashka" />
 </resources>
