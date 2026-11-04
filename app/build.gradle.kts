@@ -50,4 +50,6 @@ dependencies {
     implementation("androidx.room:room-ktx:$roomVersion")
 
     implementation("at.favre.lib:bcrypt:0.10.2")
+
+    implementation("androidx.recyclerview:recyclerview:1.3.2")
 }

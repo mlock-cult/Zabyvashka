@@ -7,7 +7,7 @@
     android:background="@drawable/bg_dark_gradient"
     tools:context=".HomeActivity">
 
-    <!-- Светящийся круг (фон) -->
+    <!-- Светящиеся круги -->
     <View
         android:layout_width="300dp"
         android:layout_height="300dp"
@@ -18,7 +18,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Приветствие -->
+    <!-- Заголовок -->
     <TextView
         android:id="@+id/greeting_text"
         android:layout_width="wrap_content"
@@ -32,18 +32,45 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Текст-заглушка -->
+    <!-- Список целей (RecyclerView) -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/goals_recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="24dp"
+        android:paddingHorizontal="24dp"
+        android:clipToPadding="false"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/bottom_navigation"
+        app:layout_constraintTop_toBottomOf="@+id/greeting_text" />
+
+    <!-- Текст-заглушка (если нет целей) -->
     <TextView
         android:id="@+id/empty_state_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="32dp"
         android:gravity="center"
-        android:text="Здесь будет список твоих объектов."
+        android:text="У вас пока нет объектов для проверки.\nНажмите «+», чтобы добавить."
         android:textColor="#B3FFFFFF"
         android:textSize="16sp"
+        android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- ПЛАВАЮЩАЯ КНОПКА "ДОБАВИТЬ" (+) -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_add"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="24dp"
+        android:src="@android:drawable/ic_input_add"
+        app:backgroundTint="#FF6B35"
+        app:tint="#FFFFFF"
+        app:elevation="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/bottom_navigation"
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <!-- Нижнее меню -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
